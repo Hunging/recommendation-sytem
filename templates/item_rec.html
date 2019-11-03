@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Flask Tutorial</title>
+  </head>
+  <body>
+    {% extends "template.html" %}
+    {% block content %}
+    <h1> Model recommendation </h1>
+    <h3> Input model id here, and get a list of similar items</h3>
+    <form>
+      Input Model Id: <input type="text" name="id"><br>
+      <input type="submit" value="Submit">
+    </form>
+    <div>{{html_str | safe}}</div>
+    <!-- <header>{% block header %}{% endblock header %}</header>
+    <div class="container">
+        {% include "modellist.html" %}
+    </div>
+    {% endblock %} -->
+  </body>
+</html>
+
+
