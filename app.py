@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request
 import os
-from static.utils import item_recommendation
+from static.utils import recommendation as recommendationUtil
 import numpy as np
 
 app = Flask(__name__)
@@ -9,37 +9,64 @@ app = Flask(__name__)
 def modellist():
     return render_template("modellist.html", **locals())
 
-@app.route("/user")
+@app.route("/user", methods=['GET', 'POST'])
 def user_rec():
-    return render_template("user_rec.html")
+    requestList = request.args.get('id')
+    requestList = "" if requestList == None else requestList
+    if(requestList != ""):
+        item2array = requestList.split()
+        try: 
+            recommendationList = recommendationUtil.get_recommendation_by_list_of_id(item2array)
+            nplist = np.transpose(recommendationList.values)
+            # print(recommendationList.values.shape)
+            # nplist[0] = recommendationList.keys()
+            # nplist[1] = recommendationList.values
+            # recommendationList = nplist
+            item_del = np.delete(nplist, 0, 1)
+            # html_str = recommendationList
+            html_str = '<ul>'
+            for (x,y) in np.ndenumerate(item_del[0]):
+                html_str += '<li> <a href="https://maithuy.com/model/May-phay-duc-tuong-Macroza-M-95-' + str(int(y)) +'">'+ str(int(y)) + ' </a></li>'
+            html_str += '</ul>'
+        except:
+            html_str = "Nhập sai thông tin mã số sản phẩm - mã sản phẩm chỉ gồm list các số cách nhau bằng 1 dấu space !!!"
+    else:
+        html_str = "Hãy nhập thôn tin vào textbox ở trên"
+    # print(itemlist)
+    
+
+    return render_template("user_rec.html", **locals())
 
 @app.route("/")
 def home():
     return render_template("item_rec.html")
 
 
-@app.route("/item")
+@app.route("/item", methods=['GET', 'POST'])
 def item_rec():
-    itemid = request.args.get('id')
-    itemid = 6 if itemid == '' else itemid
-    item_list = ''
-    if(itemid != None):
-        itemid = int(itemid)
-        item_list = item_recommendation.get_recommendation_by_id(itemid)
+    requestId= request.args.get('id')
+    requestId = "" if requestId == None else requestId
+    # requestId = 6 if requestId == '' else requestId
+    recommendationList = ''
+    if(requestId != ""):
+        try:
+            requestId = int(requestId)
+            recommendationList = recommendationUtil.get_recommendation_by_id(requestId) 
+            nplist = np.zeros((2,10))
+            nplist[0] = recommendationList.keys()
+            nplist[1] = recommendationList.values
+            recommendationList = nplist
+            item_del = np.delete(recommendationList, 0, 1)
 
-        nplist = np.zeros((2,10))
-        print(type(item_list.keys()[0]))
-        nplist[0] = item_list.keys()
-        nplist[1] = item_list.values
-        print(nplist.shape)
-        item_list = nplist
-        item_del = np.delete(item_list, 0, 1)
-
-        html_str = '<ul>'
-        for (x,y) in np.ndenumerate(item_del[0]):
-            html_str += '<li> <a href="https://maithuy.com/model/May-phay-duc-tuong-Macroza-M-95-' + str(int(y)) +'">'+ str(int(y)) + ' </a></li>'
-        html_str += '</ul>'
-
+            html_str = '<ul>'
+            for (x,y) in np.ndenumerate(item_del[0]):
+                html_str += '<li> <a href="https://maithuy.com/model/May-phay-duc-tuong-Macroza-M-95-' + str(int(y)) +'">'+ str(int(y)) + ' </a></li>'
+            html_str += '</ul>'
+        except:
+            html_str = "Mã sản phẩm không tồn tại!!!"
+    else:
+        html_str = "Hãy nhập thông tin vào textbox ở trên"
+        
     return render_template("item_rec.html", **locals())
 
 
