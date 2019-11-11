@@ -5,7 +5,7 @@
 4.  activate virtual environment: **.\virtual\Scripts\activate**
 5.  clone project
 6.  navigate to subfolder
-7.  install requirement while you are in virtual env: **pip -r requirements.txt**
+7.  install requirement while you are in virtual env: **pip install -r requirements.txt**
 
 # maithuy.recommendation app run
 ***python app.py***
