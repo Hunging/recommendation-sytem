@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 import os
 from static.utils import recommendation as recommendationUtil
 import numpy as np
@@ -39,7 +39,7 @@ def user_rec():
 
 @app.route("/")
 def home():
-    return render_template("item_rec.html")
+    return redirect("/item", code=302)
 
 
 @app.route("/item", methods=['GET', 'POST'])
