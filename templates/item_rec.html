@@ -7,6 +7,7 @@
   <body>
     {% extends "template.html" %}
     {% block content %}
+    <div class="container">
     <h1> Item recommendation </h1>
     <h3> Input model id here, and get a list of similar items</h3>
     <form>
@@ -14,6 +15,7 @@
       <input type="submit" value="Submit">
     </form>
     <div>{{html_str | safe}}</div>
+  </div>
   </body>
     {% endblock %}
 </html>

@@ -2,8 +2,15 @@ from flask import Flask, render_template, request, redirect
 import os
 from static.utils import recommendation as recommendationUtil
 import numpy as np
+import pandas as pd
 
 app = Flask(__name__)
+image_model = 'static/data/model_maithuy.xlsx'
+uploadFolder = "https://maithuy.com/Upload/Image/Model/100/"
+
+def getDataFrame():
+    dataframe = pd.read_excel(image_model)
+    return dataframe
 
 @app.route('/modellist')
 def modellist():
@@ -18,21 +25,35 @@ def user_rec():
         try: 
             recommendationList = recommendationUtil.get_recommendation_by_list_of_id(item2array)
             nplist = np.transpose(recommendationList.values)
-            # print(recommendationList.values.shape)
-            # nplist[0] = recommendationList.keys()
-            # nplist[1] = recommendationList.values
-            # recommendationList = nplist
             item_del = np.delete(nplist, 0, 1)
-            # html_str = recommendationList
-            html_str = '<ul>'
+            
+            df = getDataFrame()
+            html_str = "<span>"
+            html_str = "<div class='container'>"
+            html_str += "<h3> Input item: </h3>"
+            for i in item2array: 
+                tmp = df[df['Id']==int(i)]['Image'].values 
+                print(type(i))
+                print(i)
+                if(tmp.shape[0] > 0):
+                    image_url = uploadFolder + tmp[0]
+                    html_str += "<a href='https://maithuy.com/model/May-phay-duc-tuong-Macroza-M-95-" + str(int(i)) +"'>"
+                    html_str += " <img  class='border' src='" + image_url + "' width='140' height='140'/></a>"
+                    
+            html_str += '</div>'
+            html_str += "<div class='container'>"        
+            html_str += "<h3> Our recommendation: </h3>"
             for (x,y) in np.ndenumerate(item_del[0]):
-                html_str += '<li> <a href="https://maithuy.com/model/May-phay-duc-tuong-Macroza-M-95-' + str(int(y)) +'">'+ str(int(y)) + ' </a></li>'
-            html_str += '</ul>'
+                tmp = df[df['Id']==y]['Image'].values
+                if(tmp.shape[0] > 0):
+                    image_url = uploadFolder + df[df['Id']==y]['Image'].values[0]
+                    html_str += "<a href='https://maithuy.com/model/May-phay-duc-tuong-Macroza-M-95-" + str(int(y)) +"'>"
+                    html_str += " <img src='" + image_url + "' width='140' height='140  '/> </a>"
+            html_str += '</span>'
         except:
             html_str = "Nhập sai thông tin mã số sản phẩm - mã sản phẩm chỉ gồm list các số cách nhau bằng 1 dấu space !!!"
     else:
         html_str = "Hãy nhập thôn tin vào textbox ở trên"
-    # print(itemlist)
     
 
     return render_template("user_rec.html", **locals())
@@ -46,7 +67,6 @@ def home():
 def item_rec():
     requestId= request.args.get('id')
     requestId = "" if requestId == None else requestId
-    # requestId = 6 if requestId == '' else requestId
     recommendationList = ''
     if(requestId != ""):
         try:
@@ -57,59 +77,30 @@ def item_rec():
             nplist[1] = recommendationList.values
             recommendationList = nplist
             item_del = np.delete(recommendationList, 0, 1)
-
-            html_str = '<ul>'
+            df = getDataFrame()
+            html_str = "<div class='container'>"
+            html_str += "<h3> Input item: </h3>"
+            tmp = df[df['Id']==requestId]['Image'].values
+            if(tmp.shape[0] > 0):
+                image_url = uploadFolder + tmp[0]
+                html_str += "<a href='https://maithuy.com/model/May-phay-duc-tuong-Macroza-M-95-" + str(int(requestId)) +"'>"
+                html_str += " <img  class='border' src='" + image_url + "' width='140' height='140'/></a>"
+                html_str += '</div>'
+            html_str += "<div class='container'>"
+            html_str += "<h3> Our recommendation: </h3>"    
             for (x,y) in np.ndenumerate(item_del[0]):
-                html_str += '<li> <a href="https://maithuy.com/model/May-phay-duc-tuong-Macroza-M-95-' + str(int(y)) +'">'+ str(int(y)) + ' </a></li>'
-            html_str += '</ul>'
+                tmp = df[df['Id']==y]['Image'].values
+                if(tmp.shape[0] > 0):
+                    image_url = uploadFolder + tmp[0]
+                    html_str += "<a href='https://maithuy.com/model/May-phay-duc-tuong-Macroza-M-95-" + str(int(y)) +"'>"
+                    html_str += " <img  class='border' src='" + image_url + "' width='140' height='140'/></a>"
+            html_str += '</div>'
         except:
-            html_str = "Mã sản phẩm không tồn tại!!!"
+            html_str = "Mã sản phẩm không tồn tại hoặc chưa ai mua sản phẩm này bao giờ!!!"
     else:
         html_str = "Hãy nhập thông tin vào textbox ở trên"
         
     return render_template("item_rec.html", **locals())
-
-
-# @app.route("/test/<filename>")
-# def test(filename):
-#     # filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-#     # imageResult = image_util.detect_object(filename)
-#     # return redirect(url_for('render_image', filename=imageResult))
-#     # user_image = image_util.detect_object(filename)
-#     return render_template('imageShow.html', **locals())
-
-
-
-# @app.route('/upload/<filename>')
-# def uploaded_file(filename):
-#     return send_from_directory(app.config['UPLOAD_FOLDER'],
-#                                filename)
-
-# @app.route('/<filename>')
-# def render_image(filename):
-#     user_image = os.path.join(TEST_RESULT_PATH, filename)
-#     return render_template('imageShow.html', **locals())
-
-# @app.route('/upload', methods=['GET', 'POST'])
-# def upload_file():
-#     if request.method == 'POST':
-#         # check if the post request has the file part
-#         if 'file' not in request.files:
-#             flash('No file part')
-#             return redirect(request.url)
-#         file = request.files['file']
-#         # if user does not select file, browser also
-#         # submit an empty part without filename
-#         if file.filename == '':
-#             flash('No selected file')
-#             return redirect(request.url)
-#         if file and upload_util.allowed_file(file.filename):
-#             filename = secure_filename(file.filename)
-#             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-#             return redirect(url_for('test', filename=filename))
-#         return redirect(request.url)
-#     if request.method == 'GET':
-#         return render_template("upload.html")
 
 
 

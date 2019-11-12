@@ -44,7 +44,6 @@ def get_recommendation_by_id(id):
     # unitvector = (x / magnitude, y / magnitude, z / magnitude, ...)
     data_items = data_items.divide(magnitude, axis='index')
     data_items_result = calculate_similarity(data_items)
-    print(data_items_result.loc[id].nlargest(10))
     return data_items_result.loc[id].nlargest(10)
 
 def normalize_matrix_by_type(user_item_matrix, type='user'):
