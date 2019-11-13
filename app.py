@@ -6,14 +6,6 @@ import numpy as np
 import pandas as pd
 
 app = Flask(__name__)
-image_model = "static/data/model_maithuy.xlsx"
-uploadFolder = "https://maithuy.com/Upload/Image/Model/100/"
-
-
-def getDataFrame():
-    dataframe = pd.read_excel(image_model)
-    return dataframe
-
 
 @app.route("/modellist")
 def modellist():
@@ -33,7 +25,6 @@ def user_rec():
             nplist = np.transpose(recommendationList.values)
             item_del = np.delete(nplist, 0, 1)
 
-            df = getDataFrame()
             html_str = "<span>"
             html_str = "<div class='container'>"
             html_str += "<h3> Input item: </h3>"
@@ -80,7 +71,6 @@ def item_rec():
             nplist[1] = recommendationList.values
             recommendationList = nplist
             item_del = np.delete(recommendationList, 0, 1)
-            df = getDataFrame()
             html_str = "<div class='container'>"
             html_str += "<h3> Input item: </h3>"
             html_str += templateUtil.renderImage(requestId)

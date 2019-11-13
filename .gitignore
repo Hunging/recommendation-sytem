@@ -1,4 +1,5 @@
 #ignore file
+*.xlsx
 
 #ignore folder
 virtual/
