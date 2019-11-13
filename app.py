@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect
 import os
 from static.utils import recommendation as recommendationUtil
+from static.utils import template as templateUtil
 import numpy as np
 import pandas as pd
 
@@ -37,44 +38,24 @@ def user_rec():
             html_str = "<div class='container'>"
             html_str += "<h3> Input item: </h3>"
             for i in item2array:
-                tmp = df[df["Id"] == int(i)]["Image"].values
-                print(type(i))
-                print(i)
-                if tmp.shape[0] > 0:
-                    image_url = uploadFolder + tmp[0]
-                    html_str += (
-                        "<a href='https://maithuy.com/model/May-phay-duc-tuong-Macroza-M-95-"
-                        + str(int(i))
-                        + "'>"
-                    )
-                    html_str += (
-                        " <img  class='border' src='"
-                        + image_url
-                        + "' width='140' height='140'/></a>"
-                    )
+                html_str += templateUtil.renderImage(int(i))
 
             html_str += "</div>"
             html_str += "<div class='container'>"
             html_str += "<h3> Our recommendation: </h3>"
+            html_str += "<div class='row h-50'>"
+            count = 0
             for (x, y) in np.ndenumerate(item_del[0]):
-                tmp = df[df["Id"] == y]["Image"].values
-                if tmp.shape[0] > 0:
-                    image_url = uploadFolder + df[df["Id"] == y]["Image"].values[0]
-                    html_str += (
-                        "<a href='https://maithuy.com/model/May-phay-duc-tuong-Macroza-M-95-"
-                        + str(int(y))
-                        + "'>"
-                    )
-                    html_str += (
-                        " <img src='"
-                        + image_url
-                        + "' width='140' height='140  '/> </a>"
-                    )
+                count = count +1
+                if count % 6 == 0:
+                    html_str += "</div><div class='row h-50'>"
+                html_str += templateUtil.renderImage(int(y))
+            html_str += "</div>"
             html_str += "</span>"
         except:
             html_str = "Nhập sai thông tin mã số sản phẩm - mã sản phẩm chỉ gồm list các số cách nhau bằng 1 dấu space !!!"
     else:
-        html_str = "Hãy nhập thôn tin vào textbox ở trên"
+        html_str = "Hãy nhập thông tin vào textbox ở trên"
 
     return render_template("user_rec.html", **locals())
 
@@ -90,6 +71,7 @@ def item_rec():
     requestId = "" if requestId == None else requestId
     recommendationList = ""
     if requestId != "":
+        templateUtil.renderImage(requestId)
         try:
             requestId = int(requestId)
             recommendationList = recommendationUtil.get_recommendation_by_id(requestId)
@@ -101,54 +83,22 @@ def item_rec():
             df = getDataFrame()
             html_str = "<div class='container'>"
             html_str += "<h3> Input item: </h3>"
-            html_str += "<div>"
-            tmp = df[df["Id"] == requestId]["Image"].values
-            tmp2 = df[df["Id"] == requestId]["SeoName"].values
-            if tmp.shape[0] > 0:
-                image_url = uploadFolder + tmp[0]
-                html_str += (
-                    "<div class='col-xs-2'><figure>"
-                    +"<a href='https://maithuy.com/model/May-phay-duc-tuong-Macroza-M-95-"
-                    + str(int(requestId))
-                    + "'>"
-                    + " <img  class='border' src='"
-                    + image_url
-                    + "' width='140' height='140'/></a>"
-                )
-                if tmp2.shape[0] > 0:
-                    html_str += (
-                        "<figcaption>"
-                        + tmp2[0]
-                        + "</figcaption>"
-                    )
-                html_str+="</figure></div>"
-            html_str += "</div>"
+            html_str += templateUtil.renderImage(requestId)
+            
             html_str += "</div>"
             html_str += "<div class='container'>"
             html_str += "<h3> Our recommendation: </h3>"
+            html_str += "<div class='row h-50'>"
+            count = 0
             for (x, y) in np.ndenumerate(item_del[0]):
-                tmp = df[df["Id"] == y]["Image"].values
-                tmp2 = df[df["Id"] == y]["SeoName"].values
-                if tmp.shape[0] > 0:
-                    image_url = uploadFolder + tmp[0]
-                    html_str += (
-                        "<div class='col-xs-2'><figure>"
-                        + "<a href='https://maithuy.com/model/May-phay-duc-tuong-Macroza-M-95-"
-                        + str(int(y))
-                        + "'>"
-                        + " <img  class='border' src='"
-                        + image_url
-                        + "' width='140' height='140'/></a>"
-                    )
-                    if tmp2.shape[0] > 0:
-                        html_str += (
-                            "<figcaption>"
-                            + tmp2[0]
-                            + "</figcaption>"
-                        )
-                    html_str+="</figure></div>"
-            html_str += "</div>" + "<span class='border-bottom'></span>"
+                count = count +1
+                if count % 6 == 0:
+                    html_str += "</div><div class='row h-50'>"
+                html_str += templateUtil.renderImage(y)
+            html_str += "</div>"
+            html_str += "</div>"
         except:
+            print("loi roi")
             html_str = (
                 "Mã sản phẩm không tồn tại hoặc chưa ai mua sản phẩm này bao giờ!!!"
             )
