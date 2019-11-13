@@ -5,74 +5,95 @@ import numpy as np
 import pandas as pd
 
 app = Flask(__name__)
-image_model = 'static/data/model_maithuy.xlsx'
+image_model = "static/data/model_maithuy.xlsx"
 uploadFolder = "https://maithuy.com/Upload/Image/Model/100/"
+
 
 def getDataFrame():
     dataframe = pd.read_excel(image_model)
     return dataframe
 
-@app.route('/modellist')
+
+@app.route("/modellist")
 def modellist():
     return render_template("modellist.html", **locals())
 
-@app.route("/user", methods=['GET', 'POST'])
+
+@app.route("/user", methods=["GET", "POST"])
 def user_rec():
-    requestList = request.args.get('id')
+    requestList = request.args.get("id")
     requestList = "" if requestList == None else requestList
-    if(requestList != ""):
+    if requestList != "":
         item2array = requestList.split()
-        try: 
-            recommendationList = recommendationUtil.get_recommendation_by_list_of_id(item2array)
+        try:
+            recommendationList = recommendationUtil.get_recommendation_by_list_of_id(
+                item2array
+            )
             nplist = np.transpose(recommendationList.values)
             item_del = np.delete(nplist, 0, 1)
-            
+
             df = getDataFrame()
             html_str = "<span>"
             html_str = "<div class='container'>"
             html_str += "<h3> Input item: </h3>"
-            for i in item2array: 
-                tmp = df[df['Id']==int(i)]['Image'].values 
+            for i in item2array:
+                tmp = df[df["Id"] == int(i)]["Image"].values
                 print(type(i))
                 print(i)
-                if(tmp.shape[0] > 0):
+                if tmp.shape[0] > 0:
                     image_url = uploadFolder + tmp[0]
-                    html_str += "<a href='https://maithuy.com/model/May-phay-duc-tuong-Macroza-M-95-" + str(int(i)) +"'>"
-                    html_str += " <img  class='border' src='" + image_url + "' width='140' height='140'/></a>"
-                    
-            html_str += '</div>'
-            html_str += "<div class='container'>"        
+                    html_str += (
+                        "<a href='https://maithuy.com/model/May-phay-duc-tuong-Macroza-M-95-"
+                        + str(int(i))
+                        + "'>"
+                    )
+                    html_str += (
+                        " <img  class='border' src='"
+                        + image_url
+                        + "' width='140' height='140'/></a>"
+                    )
+
+            html_str += "</div>"
+            html_str += "<div class='container'>"
             html_str += "<h3> Our recommendation: </h3>"
-            for (x,y) in np.ndenumerate(item_del[0]):
-                tmp = df[df['Id']==y]['Image'].values
-                if(tmp.shape[0] > 0):
-                    image_url = uploadFolder + df[df['Id']==y]['Image'].values[0]
-                    html_str += "<a href='https://maithuy.com/model/May-phay-duc-tuong-Macroza-M-95-" + str(int(y)) +"'>"
-                    html_str += " <img src='" + image_url + "' width='140' height='140  '/> </a>"
-            html_str += '</span>'
+            for (x, y) in np.ndenumerate(item_del[0]):
+                tmp = df[df["Id"] == y]["Image"].values
+                if tmp.shape[0] > 0:
+                    image_url = uploadFolder + df[df["Id"] == y]["Image"].values[0]
+                    html_str += (
+                        "<a href='https://maithuy.com/model/May-phay-duc-tuong-Macroza-M-95-"
+                        + str(int(y))
+                        + "'>"
+                    )
+                    html_str += (
+                        " <img src='"
+                        + image_url
+                        + "' width='140' height='140  '/> </a>"
+                    )
+            html_str += "</span>"
         except:
             html_str = "Nhập sai thông tin mã số sản phẩm - mã sản phẩm chỉ gồm list các số cách nhau bằng 1 dấu space !!!"
     else:
         html_str = "Hãy nhập thôn tin vào textbox ở trên"
-    
 
     return render_template("user_rec.html", **locals())
+
 
 @app.route("/")
 def home():
     return redirect("/item", code=302)
 
 
-@app.route("/item", methods=['GET', 'POST'])
+@app.route("/item", methods=["GET", "POST"])
 def item_rec():
-    requestId= request.args.get('id')
+    requestId = request.args.get("id")
     requestId = "" if requestId == None else requestId
-    recommendationList = ''
-    if(requestId != ""):
+    recommendationList = ""
+    if requestId != "":
         try:
             requestId = int(requestId)
-            recommendationList = recommendationUtil.get_recommendation_by_id(requestId) 
-            nplist = np.zeros((2,10))
+            recommendationList = recommendationUtil.get_recommendation_by_id(requestId)
+            nplist = np.zeros((2, 10))
             nplist[0] = recommendationList.keys()
             nplist[1] = recommendationList.values
             recommendationList = nplist
@@ -80,29 +101,63 @@ def item_rec():
             df = getDataFrame()
             html_str = "<div class='container'>"
             html_str += "<h3> Input item: </h3>"
-            tmp = df[df['Id']==requestId]['Image'].values
-            if(tmp.shape[0] > 0):
+            html_str += "<div>"
+            tmp = df[df["Id"] == requestId]["Image"].values
+            tmp2 = df[df["Id"] == requestId]["SeoName"].values
+            if tmp.shape[0] > 0:
                 image_url = uploadFolder + tmp[0]
-                html_str += "<a href='https://maithuy.com/model/May-phay-duc-tuong-Macroza-M-95-" + str(int(requestId)) +"'>"
-                html_str += " <img  class='border' src='" + image_url + "' width='140' height='140'/></a>"
-                html_str += '</div>'
+                html_str += (
+                    "<div class='col-xs-2'><figure>"
+                    +"<a href='https://maithuy.com/model/May-phay-duc-tuong-Macroza-M-95-"
+                    + str(int(requestId))
+                    + "'>"
+                    + " <img  class='border' src='"
+                    + image_url
+                    + "' width='140' height='140'/></a>"
+                )
+                if tmp2.shape[0] > 0:
+                    html_str += (
+                        "<figcaption>"
+                        + tmp2[0]
+                        + "</figcaption>"
+                    )
+                html_str+="</figure></div>"
+            html_str += "</div>"
+            html_str += "</div>"
             html_str += "<div class='container'>"
-            html_str += "<h3> Our recommendation: </h3>"    
-            for (x,y) in np.ndenumerate(item_del[0]):
-                tmp = df[df['Id']==y]['Image'].values
-                if(tmp.shape[0] > 0):
+            html_str += "<h3> Our recommendation: </h3>"
+            for (x, y) in np.ndenumerate(item_del[0]):
+                tmp = df[df["Id"] == y]["Image"].values
+                tmp2 = df[df["Id"] == y]["SeoName"].values
+                if tmp.shape[0] > 0:
                     image_url = uploadFolder + tmp[0]
-                    html_str += "<a href='https://maithuy.com/model/May-phay-duc-tuong-Macroza-M-95-" + str(int(y)) +"'>"
-                    html_str += " <img  class='border' src='" + image_url + "' width='140' height='140'/></a>"
-            html_str += '</div>'
+                    html_str += (
+                        "<div class='col-xs-2'><figure>"
+                        + "<a href='https://maithuy.com/model/May-phay-duc-tuong-Macroza-M-95-"
+                        + str(int(y))
+                        + "'>"
+                        + " <img  class='border' src='"
+                        + image_url
+                        + "' width='140' height='140'/></a>"
+                    )
+                    if tmp2.shape[0] > 0:
+                        html_str += (
+                            "<figcaption>"
+                            + tmp2[0]
+                            + "</figcaption>"
+                        )
+                    html_str+="</figure></div>"
+            html_str += "</div>" + "<span class='border-bottom'></span>"
         except:
-            html_str = "Mã sản phẩm không tồn tại hoặc chưa ai mua sản phẩm này bao giờ!!!"
+            html_str = (
+                "Mã sản phẩm không tồn tại hoặc chưa ai mua sản phẩm này bao giờ!!!"
+            )
     else:
         html_str = "Hãy nhập thông tin vào textbox ở trên"
-        
+
     return render_template("item_rec.html", **locals())
 
 
-
 if __name__ == "__main__":
-    app.run(debug=True, host = '0.0.0.0')
+    app.run(debug=True, host="0.0.0.0")
+

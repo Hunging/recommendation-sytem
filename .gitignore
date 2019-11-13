@@ -3,3 +3,4 @@
 #ignore folder
 virtual/
 .vscode/
+__pycache__/
