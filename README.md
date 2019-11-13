@@ -19,7 +19,7 @@ Use Buy_model xlsx file to recommend (locate at static/data)
 *  Item recommendation: Display a list of 10 similar items based on 1 provided item (input 1 model number)
 *  User recommendation: Display a list of 10 similar items based on list of items (input list of model number )
 *  Syntax for user recommendation: list of item'numbers separeted by a space
-*  For example user have buy items number 26598, 3594, 5148. So type in "26598 3594 5148"
+*  For example user have bought items number 26598, 3594, 5148. So type in "26598 3594 5148"
 
 # maithuy.recommendation future works:
 *  There are a lot of parameter in user recommendation, which can improve accuracy
